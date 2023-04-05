@@ -1,50 +1,46 @@
 #!/usr/bin/python3
-'''Generate prime numbers first
+'''prime game
 '''
 
-
-
-def getPrimes(n):
-    primes = []
-    sieve = [True] * (n+1)
-    for i in range(2, n+1):
-        if sieve[i]:
-            primes.append(i)
-            for j in range(i*i, n+1, i):
-                sieve[j] = False
-    return primes
-
-
-'''Removes all multiples of a prime number from the list of nums
-'''
-def removeMultiples(prime, nums):
-    for i in range(prime, nums[-1]+1, prime):
-        if i in nums:
-            nums.remove(i)
-
-'''Calculates the winner in the game
-'''
 def isWinner(x, nums):
-    maria_wins = 0
-    ben_wins = 0
-    for n in nums:
-        primes = getPrimes(n)
-        turn = 0 # 0 for Maria, 1 for Ben
-        while primes:
-            prime = primes.pop(0)
-            if turn == 0:
-                removeMultiples(prime, nums)
-                turn = 1
-            else:
-                removeMultiples(prime, nums)
-                turn = 0
-        if turn == 0:
-            ben_wins += 1
-        else:
-            maria_wins += 1
-    if maria_wins == ben_wins:
+    winner = None
+    if x < 1 or not nums:
         return None
-    elif maria_wins > ben_wins:
-        return "Maria"
-    else:
-        return "Ben"
+
+    for i in range(x):
+        n = nums[i]
+        primes = []
+        is_prime = [True] * (n+1)
+        is_prime[0] = is_prime[1] = False
+
+        # Use Sieve of Eratosthenes to find all primes
+        for p in range(2, n+1):
+            if is_prime[p]:
+                primes.append(p)
+                for multiple in range(2*p, n+1, p):
+                    is_prime[multiple] = False
+
+        # Play the game
+        current_player = "Maria"
+        while primes:
+            # Choose a prime number to remove
+            prime = primes.pop(0)
+            multiples = [num for num in range(prime, n+1, prime)]
+
+            # Removing multiples of prime number
+            for multiple in multiples:
+                if multiple in primes:
+                    primes.remove(multiple)
+
+            # Is the game over
+            if not primes:
+                winner = current_player
+                break
+
+            # Switching turns
+            if current_player == "Maria":
+                current_player = "Ben"
+            else:
+                current_player = "Maria"
+
+    return winner
